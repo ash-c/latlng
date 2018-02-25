@@ -1,0 +1,20 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "jsx": "preserve",
+    "target": "es6",
+    "module": "es6",
+    "baseUrl": ".",
+    "paths": {
+      "axios": [ "node_modules/axios/index.d.ts" ],
+      "redux": [ "node_modules/redux/index.d.ts" ]
+    },
+    "sourceMap": true,
+    "outDir": "./reactClient/",
+    "strict": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}

@@ -1,0 +1,15 @@
+﻿{
+  "defaultSeverity": "error",
+  "extends": [ "tslint:latest", "tslint-react" ],
+  "jsRules": { },
+  "rules": {
+    // This rule makes each Interface be prefixed with 'I' which I don't like
+    "interface-name": [ true, "never-prefix" ],
+    // This rule enforces objects to always have keys in alphabetical order
+    "object-literal-sort-keys": false,
+    "no-submodule-imports": false,
+    "no-console": [ false ],
+    "max-line-length": [ false ]
+  },
+  "rulesDirectory": []
+}

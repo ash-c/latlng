@@ -1,0 +1,9 @@
+/.vs/config/applicationhost.config
+/latlng/node_modules/*
+/latlng/bin/*
+/latlng/obj/*
+/.vs/latlng/v15/*
+/latlng/*.user
+/latlng/npm-debug.log
+/latlng/reactClient/*.map
+/latlng/reactClient/*.jsx
