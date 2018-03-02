@@ -1,6 +1,19 @@
 ﻿@{
     Layout = "_Layout";
     ViewData["Title"] = "Home Page";
+
+    var apiKey = "AIzaSyCOd7C0MVcw3U0fXf_1w7sQ-wWB-uZOUuE";
 }
 
-<div id="latlng" class="row"></div>
+<div id="loading">Loading...</div>
+<div id="latlng" class="row d-none"></div>
+
+<script type="text/javascript">
+    function initMap() {
+        document.getElementById("loading").classList.add("d-none");
+        document.getElementById("latlng").classList.remove("d-none");
+    }
+</script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=@apiKey&callback=initMap">
+</script>
