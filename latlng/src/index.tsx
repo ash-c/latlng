@@ -95,7 +95,7 @@ class LatLng extends React.Component<{}, LatLngState> {
                 }
             }
 
-            this.latIndex = this.addressIndex + 1;
+            this.latIndex = (results.data[0] as any).length;
             this.lngIndex = this.latIndex + 1;
             results.data[0][this.latIndex] = "Latitude";
             results.data[0][this.lngIndex] = "Longitude";
@@ -147,7 +147,7 @@ class LatLng extends React.Component<{}, LatLngState> {
                         }
                     }).join(",");
                 }).join("\r\n");
-                
+
                 const link = document.createElement("a");
                 link.href = "data:text/csv;charset=utf-8," + encodeURIComponent(data);
                 link.innerText = "Click to download.";
