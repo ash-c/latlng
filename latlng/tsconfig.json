@@ -11,7 +11,7 @@
       "redux": [ "node_modules/redux/index.d.ts" ]
     },
     "sourceMap": true,
-    "outDir": "./reactClient/",
+    "outDir": "./src/",
     "strict": true
   },
   "exclude": [

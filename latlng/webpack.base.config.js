@@ -3,6 +3,7 @@ const merge = require("webpack-merge");
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 const DefinePlugin = require("webpack/lib/DefinePlugin");
 const CommonsChunkPlugin = require("webpack/lib/optimize/CommonsChunkPlugin");
+const FriendlyErrorsPlugin = require("friendly-errors-webpack-plugin");
 
 const resolveConfig = require("./webpack.resolve.config");
 
@@ -20,6 +21,7 @@ module.exports = merge(resolveConfig, {
             "react-dom",
         ]
     },
+    stats: false,
     output: {
         path: path.resolve(__dirname + "/wwwroot/js"),
         filename: "[name].js"
@@ -74,6 +76,7 @@ module.exports = merge(resolveConfig, {
                     PROD: prodEnv
                 }
             }
-        })
+        }),
+        new FriendlyErrorsPlugin()
     ]
 });
