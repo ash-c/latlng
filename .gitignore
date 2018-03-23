@@ -7,3 +7,13 @@
 /latlng/npm-debug.log
 /latlng/reactClient/*.map
 /latlng/reactClient/*.jsx
+/latlng/src/configs/*.jsx
+/latlng/src/configs/*.map
+/latlng/src/types/*.jsx
+/latlng/src/types/*.map
+/latlng/src/*.jsx
+/latlng/src/*.map
+/latlng/src/types/results/*.map
+/latlng/src/types/results/*.jsx
+/latlng/src/utils/*.map
+/latlng/src/utils/*.jsx

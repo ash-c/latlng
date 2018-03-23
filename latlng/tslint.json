@@ -9,7 +9,8 @@
     "object-literal-sort-keys": false,
     "no-submodule-imports": false,
     "no-console": [ false ],
-    "max-line-length": [ false ]
+    "max-line-length": [ false ],
+    "no-implicit-dependencies": false
   },
   "rulesDirectory": []
 }

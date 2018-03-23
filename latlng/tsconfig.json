@@ -7,8 +7,7 @@
     "module": "es6",
     "baseUrl": ".",
     "paths": {
-      "axios": [ "node_modules/axios/index.d.ts" ],
-      "redux": [ "node_modules/redux/index.d.ts" ]
+      "axios": [ "node_modules/axios/index.d.ts" ]
     },
     "sourceMap": true,
     "outDir": "./src/",

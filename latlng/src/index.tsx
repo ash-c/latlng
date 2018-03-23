@@ -3,13 +3,15 @@ import ReactDOM from "react-dom";
 
 import Papa from "papaparse";
 
+import Ajax from "utils/ajax";
+import Logging from "utils/logging";
+
 interface LatLngState {
     notFound: string[];
     completed: number;
 }
 
 class LatLng extends React.Component<{}, LatLngState> {
-    private geocode: google.maps.Geocoder | null;
     private csvData: any[];
     private startTime: Date;
     private fileName: string;
@@ -26,8 +28,7 @@ class LatLng extends React.Component<{}, LatLngState> {
             completed: 0,
         };
 
-        this.geocode = null;
-        this.timeDelay = 1000;
+        this.timeDelay = 50;
         this.addressIndex = -1;
         this.latIndex = -1;
         this.lngIndex = -1;
@@ -107,61 +108,54 @@ class LatLng extends React.Component<{}, LatLngState> {
     }
 
     private getLocation = (address: string, currentIndex: number = 1): void => {
-        if (null === this.geocode) {
-            this.geocode = new google.maps.Geocoder();
-        }
-
-        // Check that address has a length.
-        console.log("Address: %s, Index: %i, Data: %o", address, currentIndex, this.csvData[currentIndex]);
-
-        this.geocode.geocode({
-            address,
-        }, (geocodeResults: google.maps.GeocoderResult[], status: google.maps.GeocoderStatus): void => {
-            console.log("STATUS: %s", status);
-            if (status === google.maps.GeocoderStatus.OK) {
-                this.csvData[currentIndex][this.latIndex] = geocodeResults[0].geometry.location.lat();
-                this.csvData[currentIndex][this.lngIndex] = geocodeResults[0].geometry.location.lng();
-                this.setState({ completed: currentIndex });
-            } else if (status === google.maps.GeocoderStatus.ZERO_RESULTS) {
-                this.csvData[currentIndex][this.latIndex] = 0;
-                this.csvData[currentIndex][this.lngIndex] = 0;
-                this.state.notFound.push(this.csvData[currentIndex][this.addressIndex]);
-                this.setState({ completed: currentIndex, notFound: this.state.notFound });
-            } else if (status === google.maps.GeocoderStatus.OVER_QUERY_LIMIT || status === google.maps.GeocoderStatus.UNKNOWN_ERROR) {
-                console.log("PAUSED");
-                setTimeout(this.getLocation, 10000, this.csvData[currentIndex][this.addressIndex], currentIndex);
-                return;
-            }
-
-            currentIndex += 1;
-
-            if (currentIndex >= this.csvData.length - 1) {
-                console.log("FINISHED");
-                // Surround strings in quotes, and add line breaks to the end of each row.
-                const data: string = this.csvData.map((value: any[]) => {
-                    return value.map((val: string | number) => {
-                        if (typeof val === "string") {
-                            return "\"" + val + "\"";
-                        } else {
-                            return val;
-                        }
-                    }).join(",");
-                }).join("\r\n");
-
-                const link = document.createElement("a");
-                link.href = "data:text/csv;charset=utf-8," + encodeURIComponent(data);
-                link.innerText = "Click to download.";
-                link.setAttribute("download", this.fileName);
-
-                const main: HTMLElement | null = document.getElementById("mainText");
-
-                if (null !== main) {
-                    main.appendChild(link);
+        Ajax.get("api/geocode?address=" + address)
+            .then((result: JsonResult) => {
+                const status: google.maps.GeocoderStatus = result.data.status;
+                const geocodeResults: google.maps.GeocoderResult[] = result.data.results;
+                Logging.log("STATUS: %s", status);
+                if (status === google.maps.GeocoderStatus.OK) {
+                    this.csvData[currentIndex][this.lngIndex] = geocodeResults[0].geometry.location.lng;
+                    this.csvData[currentIndex][this.latIndex] = geocodeResults[0].geometry.location.lat;
+                    this.setState({ completed: currentIndex });
+                } else if (status === google.maps.GeocoderStatus.ZERO_RESULTS) {
+                    this.csvData[currentIndex][this.latIndex] = 0;
+                    this.csvData[currentIndex][this.lngIndex] = 0;
+                    this.state.notFound.push(this.csvData[currentIndex][this.addressIndex]);
+                    this.setState({ completed: currentIndex, notFound: this.state.notFound });
+                } else if (status === google.maps.GeocoderStatus.OVER_QUERY_LIMIT || status === google.maps.GeocoderStatus.UNKNOWN_ERROR) {
+                    Logging.log("PAUSED");
+                    setTimeout(this.getLocation, 50000, this.csvData[currentIndex][this.addressIndex], currentIndex);
+                    return;
                 }
-            } else {
-                setTimeout(this.getLocation, this.timeDelay, this.csvData[currentIndex][this.addressIndex], currentIndex);
-            }
-        });
+                currentIndex += 1;
+
+                if (currentIndex >= this.csvData.length - 1) {
+                    Logging.log("FINISHED");
+                    // Surround strings in quotes, and add line breaks to the end of each row.
+                    const data: string = this.csvData.map((value: any[]) => {
+                        return value.map((val: string | number) => {
+                            if (typeof val === "string") {
+                                return "\"" + val + "\"";
+                            } else {
+                                return val;
+                            }
+                        }).join(",");
+                    }).join("\r\n");
+
+                    const link = document.createElement("a");
+                    link.href = "data:text/csv;charset=utf-8," + encodeURIComponent(data);
+                    link.innerText = "Click to download.";
+                    link.setAttribute("download", this.fileName);
+
+                    const main: HTMLElement | null = document.getElementById("mainText");
+
+                    if (null !== main) {
+                        main.appendChild(link);
+                    }
+                } else {
+                    setTimeout(this.getLocation, this.timeDelay * Math.random(), this.csvData[currentIndex][this.addressIndex], currentIndex);
+                }
+            });
     }
 }
 
