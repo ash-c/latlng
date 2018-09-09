@@ -17,6 +17,9 @@ class LatLng extends React.Component<{}, LatLngState> {
     private fileName: string;
     private timeDelay: number;
     private addressIndex: number;
+    private cityIndex: number;
+    private stateIndex: number;
+    private zipIndex: number;
     private latIndex: number;
     private lngIndex: number;
 
@@ -30,8 +33,14 @@ class LatLng extends React.Component<{}, LatLngState> {
 
         this.timeDelay = 50;
         this.addressIndex = -1;
+        this.cityIndex = -1;
+        this.stateIndex = -1;
+        this.zipIndex = -1;
         this.latIndex = -1;
         this.lngIndex = -1;
+        this.csvData = [];
+        this.startTime = new Date();
+        this.fileName = "";
     }
 
     public render(): React.ReactFragment {
@@ -92,7 +101,15 @@ class LatLng extends React.Component<{}, LatLngState> {
             for (const data of results.data[0]) {
                 if (-1 < (data as string).toLowerCase().indexOf("address")) {
                     this.addressIndex = results.data[0].indexOf(data);
-                    break;
+                }
+                if (-1 < (data as string).toLowerCase().indexOf("city")) {
+                    this.cityIndex = results.data[0].indexOf(data);
+                }
+                if (-1 < (data as string).toLowerCase().indexOf("state")) {
+                    this.stateIndex = results.data[0].indexOf(data);
+                }
+                if (-1 < (data as string).toLowerCase().indexOf("zip")) {
+                    this.zipIndex = results.data[0].indexOf(data);
                 }
             }
 
@@ -108,12 +125,15 @@ class LatLng extends React.Component<{}, LatLngState> {
     }
 
     private getLocation = (address: string, currentIndex: number = 1): void => {
-        Ajax.get("api/geocode?address=" + address)
+        Ajax.get("api/geocode?address=" + address + ", " + this.csvData[currentIndex][this.cityIndex])
             .then((result: JsonResult) => {
                 const status: google.maps.GeocoderStatus = result.data.status;
                 const geocodeResults: google.maps.GeocoderResult[] = result.data.results;
                 Logging.log("STATUS: %s", status);
-                if (status === google.maps.GeocoderStatus.OK) {
+                if (status === google.maps.GeocoderStatus.REQUEST_DENIED) {
+                    Logging.log("STOPPING.");
+                    return;
+                } else if (status === google.maps.GeocoderStatus.OK) {
                     this.csvData[currentIndex][this.lngIndex] = geocodeResults[0].geometry.location.lng;
                     this.csvData[currentIndex][this.latIndex] = geocodeResults[0].geometry.location.lat;
                     this.setState({ completed: currentIndex });
@@ -127,6 +147,8 @@ class LatLng extends React.Component<{}, LatLngState> {
                     setTimeout(this.getLocation, 50000, this.csvData[currentIndex][this.addressIndex], currentIndex);
                     return;
                 }
+                this.csvData[currentIndex][this.addressIndex] += ", " + this.csvData[currentIndex][this.cityIndex] + ", " + this.csvData[currentIndex][this.stateIndex] + " " + this.csvData[currentIndex][this.zipIndex];
+
                 currentIndex += 1;
 
                 if (currentIndex >= this.csvData.length - 1) {
