@@ -120,11 +120,13 @@ class LatLng extends React.Component<{}, LatLngState> {
 
             this.csvData = results.data;
 
-            setTimeout(this.getLocation, this.timeDelay, this.csvData[1][this.addressIndex]);
+            setTimeout(this.getLocation, this.timeDelay);
         }
     }
 
-    private getLocation = (address: string, currentIndex: number = 1): void => {
+    private getLocation = (currentIndex: number = 1): void => {
+        this.csvData[currentIndex][this.addressIndex] += ", " + this.csvData[currentIndex][this.cityIndex] + ", " + this.csvData[currentIndex][this.stateIndex] + " " + this.csvData[currentIndex][this.zipIndex];
+        const address: string = this.csvData[currentIndex][this.addressIndex];
         Ajax.get("api/geocode?address=" + address + ", " + this.csvData[currentIndex][this.cityIndex])
             .then((result: JsonResult) => {
                 const status: google.maps.GeocoderStatus = result.data.status;
@@ -147,7 +149,6 @@ class LatLng extends React.Component<{}, LatLngState> {
                     setTimeout(this.getLocation, 50000, this.csvData[currentIndex][this.addressIndex], currentIndex);
                     return;
                 }
-                this.csvData[currentIndex][this.addressIndex] += ", " + this.csvData[currentIndex][this.cityIndex] + ", " + this.csvData[currentIndex][this.stateIndex] + " " + this.csvData[currentIndex][this.zipIndex];
 
                 currentIndex += 1;
 
@@ -175,7 +176,7 @@ class LatLng extends React.Component<{}, LatLngState> {
                         main.appendChild(link);
                     }
                 } else {
-                    setTimeout(this.getLocation, this.timeDelay * Math.random(), this.csvData[currentIndex][this.addressIndex], currentIndex);
+                    setTimeout(this.getLocation, this.timeDelay, currentIndex);
                 }
             });
     }
